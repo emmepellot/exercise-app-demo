@@ -9,6 +9,7 @@ import { Input } from 'react-native-elements';
 
 const Stack = createStackNavigator();
 
+// Navigation container
 export default function App() {
   return (
     <NavigationContainer>
@@ -26,35 +27,31 @@ function LoginScreen({ navigation }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
+  // Check async storage
   const handleLogin = async () => {
-    // Check if the entered username and password match the test credentials directly
     if (username === 'test' && password === 'Test1@') {
-      // Login successful, navigate to TODO screen
       navigation.navigate('TODO App');
       return;
     }
-  
-    // Fetch registration data from AsyncStorage
+    
     try {
       const registrationData = await AsyncStorage.getItem('registrationData');
       if (registrationData !== null) {
         const users = JSON.parse(registrationData);
         const user = users.find(user => user.username === username && user.password === password);
         if (user) {
-          // Login successful, navigate to TODO screen
           navigation.navigate('TODO App');
         } else {
-          // Incorrect username or password
           alert('Incorrect username or password');
         }
       } else {
-        // No stored registration data
         alert('No stored registration data');
       }
     } catch (error) {
       console.error('Error retrieving registration data:', error);
     }
   };
+  // Style sheet login
   const loginStyles = StyleSheet.create({
     container: {
       flex: 1,
@@ -81,7 +78,7 @@ function LoginScreen({ navigation }) {
     },
   });
   
-
+  // Styling
   return (
     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
       <Text style={loginStyles.title}>Login Screen</Text>
@@ -131,6 +128,7 @@ function RegistrationScreen({ navigation }) {
   const [newsletter, setNewsletter] = React.useState(false);
   const [errors, setErrors] = React.useState({});
 
+  // Validation messages
   const validateInput = (name, value) => {
     switch (name) {
       case 'firstname':
@@ -160,7 +158,6 @@ function RegistrationScreen({ navigation }) {
   };
 
   const handleRegister = async () => {
-    // Validation logic
     const inputErrors = {};
 
     // Phone Number validation
@@ -183,28 +180,23 @@ function RegistrationScreen({ navigation }) {
     const hasErrors = Object.values(inputErrors).some(error => error !== '');
 
     if (!hasErrors) {
-      // No errors, proceed with registration
       try {
-        // Fetch existing registration data from AsyncStorage
         const registrationData = await AsyncStorage.getItem('registrationData');
         let data = [];
         if (registrationData) {
           data = JSON.parse(registrationData);
         }
-        // Add new user data
         data.push({ username, password });
-        // Save updated data back to AsyncStorage
         await AsyncStorage.setItem('registrationData', JSON.stringify(data));
-        // Navigate to login screen
         navigation.navigate('Login');
       } catch (error) {
         console.error('Error saving registration data:', error);
       }
     } else {
-      // Update state with errors
       setErrors(inputErrors);
     }
   };
+  // Style sheet registration
   const registrationStyles = StyleSheet.create({
     container: {
       flex: 1,
@@ -314,15 +306,18 @@ function RegistrationScreen({ navigation }) {
   );
 }
 
+// TODO Screen from ex7
 function TodoAppScreen() {
+  // Default tasks as an array
   const [tasks, setTasks] = useState([
+    // Tasks contain key, completed, and description properties
     { key: 1, description: 'Task 1', completed: false },
     { key: 2, description: 'Task 2', completed: false },
     { key: 3, description: 'Task 3', completed: false },
   ]);
-
   const [newTaskDescription, setNewTaskDescription] = useState('');
 
+  // User can add new task with add button
   const addTask = () => {
     if (newTaskDescription.trim() !== '') {
       setTasks([...tasks, { key: tasks.length + 1, description: newTaskDescription, completed: false }]);
@@ -330,6 +325,7 @@ function TodoAppScreen() {
     }
   };
 
+  // Completion toggle 
   const toggleTaskCompletion = (key) => {
     setTasks(tasks.map(task => {
       if (task.key === key) {
@@ -339,6 +335,7 @@ function TodoAppScreen() {
     }));
   };
 
+  // Create each task item
   const renderItem = ({ item }) => (
     <View style={styles.taskItem}>
       <CheckBox
@@ -370,7 +367,7 @@ function TodoAppScreen() {
     </View>
   );
 }
-
+// Styling
 const styles = StyleSheet.create({
   container: {
     flex: 1,
