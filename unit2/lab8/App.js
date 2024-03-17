@@ -22,7 +22,7 @@ export default function App() {
   );
 }
 
-
+// Called to navigate to and display Login screen
 function LoginScreen({ navigation }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -73,7 +73,7 @@ function LoginScreen({ navigation }) {
       marginBottom: 50,
     },
     buttonContainer: {
-      width: '50%',
+      width: '20%',
       marginBottom: 10,
     },
   });
@@ -115,8 +115,9 @@ function LoginScreen({ navigation }) {
   );  
 }
 
-
+// Called to navigate to and display Register screen
 function RegistrationScreen({ navigation }) {
+  const [isValid, setIsValid] = React.useState(false); 
   const [firstname, setFirstname] = React.useState('');
   const [lastname, setLastname] = React.useState('');
   const [username, setUsername] = React.useState('');
@@ -128,7 +129,7 @@ function RegistrationScreen({ navigation }) {
   const [newsletter, setNewsletter] = React.useState(false);
   const [errors, setErrors] = React.useState({});
 
-  // Validation messages
+  // Validate inputs
   const validateInput = (name, value) => {
     switch (name) {
       case 'firstname':
@@ -151,35 +152,39 @@ function RegistrationScreen({ navigation }) {
         return '';
     }
   };
-
+  // Called when field out of focus
   const handleBlur = (name, value) => {
     const errorMessage = validateInput(name, value);
     setErrors(prevErrors => ({ ...prevErrors, [name]: errorMessage }));
+
+    // Update validity of inputs and errors
+    setIsValid(
+      Object.values(errors).every(error => error === '') &&
+        Object.values(errors).some(error => error === '')
+    );
   };
 
+  // Called when user registers
   const handleRegister = async () => {
-    const inputErrors = {};
+    const inputErrors = {
+      firstname: validateInput('firstname', firstname),
+      lastname: validateInput('lastname', lastname),
+      username: validateInput('username', username),
+      phonenumber: validateInput('phonenumber', phonenumber),
+      password: validateInput('password', password),
+      confirmpassword: validateInput('confirmpassword', confirmpassword),
+      email: validateInput('email', email),
+      zip: validateInput('zip', zip),
+    };
 
-    // Phone Number validation
-    inputErrors.phonenumber = validateInput('phonenumber', phonenumber);
+    // Update errors in the form
+    setErrors(inputErrors);
 
-    // Email validation
-    inputErrors.email = validateInput('email', email);
+    // Form is valid if no errors
+    setIsValid(!hasErrors && Object.values(inputErrors).every(error => error === ''));
 
-    // Password validation
-    inputErrors.password = validateInput('password', password);
-
-    // First Name and Last Name validation
-    inputErrors.firstname = validateInput('firstname', firstname);
-    inputErrors.lastname = validateInput('lastname', lastname);
-
-    // ZIP Code validation
-    inputErrors.zip = validateInput('zip', zip);
-
-    // Check if there are any errors
-    const hasErrors = Object.values(inputErrors).some(error => error !== '');
-
-    if (!hasErrors) {
+    // If form is valid then user can register
+    if (isValid) {
       try {
         const registrationData = await AsyncStorage.getItem('registrationData');
         let data = [];
@@ -192,10 +197,9 @@ function RegistrationScreen({ navigation }) {
       } catch (error) {
         console.error('Error saving registration data:', error);
       }
-    } else {
-      setErrors(inputErrors);
     }
   };
+
   // Style sheet registration
   const registrationStyles = StyleSheet.create({
     container: {
@@ -223,7 +227,7 @@ function RegistrationScreen({ navigation }) {
   });
 
   return (
-    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+    <View style={registrationStyles.container}>
       <Text style={registrationStyles.title}>Registration</Text>
       <View style={registrationStyles.inputContainer}>
         <Input
@@ -288,11 +292,13 @@ function RegistrationScreen({ navigation }) {
           errorMessage={errors.zip}
           testID="zip"
         />
-        <CheckBox
-          title="Sign up for newsletter"
-          checked={newsletter}
-          onPress={() => setNewsletter(!newsletter)}
-        />
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <CheckBox
+            value={newsletter}
+            onValueChange={setNewsletter}
+          />
+          <Text>Sign up for newsletter</Text>
+        </View>
       </View>
       <View style={registrationStyles.buttonContainer}>
         <Button
