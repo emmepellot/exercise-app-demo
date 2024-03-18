@@ -115,9 +115,7 @@ function LoginScreen({ navigation }) {
   );  
 }
 
-// Called to navigate to and display Register screen
 function RegistrationScreen({ navigation }) {
-  const [isValid, setIsValid] = React.useState(false); 
   const [firstname, setFirstname] = React.useState('');
   const [lastname, setLastname] = React.useState('');
   const [username, setUsername] = React.useState('');
@@ -129,7 +127,6 @@ function RegistrationScreen({ navigation }) {
   const [newsletter, setNewsletter] = React.useState(false);
   const [errors, setErrors] = React.useState({});
 
-  // Validate inputs
   const validateInput = (name, value) => {
     switch (name) {
       case 'firstname':
@@ -152,51 +149,56 @@ function RegistrationScreen({ navigation }) {
         return '';
     }
   };
-  // Called when field out of focus
+
   const handleBlur = (name, value) => {
     const errorMessage = validateInput(name, value);
     setErrors(prevErrors => ({ ...prevErrors, [name]: errorMessage }));
-
-    // Update validity of inputs and errors
-    setIsValid(
-      Object.values(errors).every(error => error === '') &&
-        Object.values(errors).some(error => error === '')
-    );
   };
 
-  // Called when user registers
   const handleRegister = async () => {
-    const inputErrors = {
-      firstname: validateInput('firstname', firstname),
-      lastname: validateInput('lastname', lastname),
-      username: validateInput('username', username),
-      phonenumber: validateInput('phonenumber', phonenumber),
-      password: validateInput('password', password),
-      confirmpassword: validateInput('confirmpassword', confirmpassword),
-      email: validateInput('email', email),
-      zip: validateInput('zip', zip),
-    };
+    // Validation logic
+    const inputErrors = {};
 
-    // Update errors in the form
-    setErrors(inputErrors);
+    // Phone Number validation
+    inputErrors.phonenumber = validateInput('phonenumber', phonenumber);
 
-    // Form is valid if no errors
-    setIsValid(!hasErrors && Object.values(inputErrors).every(error => error === ''));
+    // Email validation
+    inputErrors.email = validateInput('email', email);
 
-    // If form is valid then user can register
-    if (isValid) {
+    // Password validation
+    inputErrors.password = validateInput('password', password);
+
+    // First Name and Last Name validation
+    inputErrors.firstname = validateInput('firstname', firstname);
+    inputErrors.lastname = validateInput('lastname', lastname);
+
+    // ZIP Code validation
+    inputErrors.zip = validateInput('zip', zip);
+
+    // Check if there are any errors
+    const hasErrors = Object.values(inputErrors).some(error => error !== '');
+
+    if (!hasErrors) {
+      // No errors, proceed with registration
       try {
+        // Fetch existing registration data from AsyncStorage
         const registrationData = await AsyncStorage.getItem('registrationData');
         let data = [];
         if (registrationData) {
           data = JSON.parse(registrationData);
         }
+        // Add new user data
         data.push({ username, password });
+        // Save updated data back to AsyncStorage
         await AsyncStorage.setItem('registrationData', JSON.stringify(data));
+        // Navigate to login screen
         navigation.navigate('Login');
       } catch (error) {
         console.error('Error saving registration data:', error);
       }
+    } else {
+      // Update state with errors
+      setErrors(inputErrors);
     }
   };
 
@@ -301,12 +303,12 @@ function RegistrationScreen({ navigation }) {
         </View>
       </View>
       <View style={registrationStyles.buttonContainer}>
-        <Button
-          title="Register"
-          onPress={handleRegister}
-          disabled={Object.values(errors).some(error => error !== '')}
-          testID="register-button"
-        />
+      <Button
+        title="Register"
+        onPress={handleRegister}
+        disabled={Object.values(errors).some(error => error !== '')}
+        testID="register-button"
+      />
       </View>
     </View>
   );
