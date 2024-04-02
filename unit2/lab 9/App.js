@@ -94,7 +94,7 @@ function DurationExercise({ route, navigation }) {
   return (
     <View style={styles.container}>
       <Text>{name}</Text>
-      <Text>Timer: {timer}</Text> {/* Display the timer here */}
+      <Text>Timer: {timer}</Text> {}
       {!isRunning ? (
         <Button title="Start Timer" onPress={startTimer} color="#006700" />
       ) : (
