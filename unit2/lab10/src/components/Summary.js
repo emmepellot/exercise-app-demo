@@ -4,16 +4,16 @@ import { View, Text, StyleSheet } from 'react-native';
 const Summary = ({ route }) => {
     const { questions, selectedAnswer } = route.params;
     let totalScore = 0;
-  
+
+    // Gets user answers and determines correct or incorrect
     return (
       <View style={styles.container}>
         {questions.map((question, index) => {
-          const userAnswer = selectedAnswer[index]; // Get the user's answer for the current question
-          console.log(userAnswer)
-          // Determine correctness
+          const userAnswer = selectedAnswer[index];
+          console.log(userAnswer);
           const isCorrect = (() => {
-            if (!userAnswer || !question.correct) {
-              return false; // Return false if either userAnswer or correct answer is undefined
+            if (userAnswer === undefined || question.correct === undefined) {
+              return false;
             }
           
             if (question.type === 'true-false') {
@@ -24,9 +24,9 @@ const Summary = ({ route }) => {
               return userAnswer === question.correct;
             }
           })();
-          
+
           if (isCorrect) totalScore++;
-  
+          // Handles visual logic for summary screen
           return (
             <View key={index} style={styles.questionContainer}>
               <Text style={styles.question}>{question.prompt}</Text>
@@ -34,7 +34,7 @@ const Summary = ({ route }) => {
                 Your Answer: {userAnswer !== undefined ? question.choices[userAnswer] : 'No Answer Provided'}
               </Text>
               <Text style={styles.correctAnswer}>
-                Correct Answer: {question.choices[question.correct]}
+                Correct Answer: {Array.isArray(question.correct) ? question.correct.map(i => question.choices[i]).join(', ') : question.choices[question.correct]}
               </Text>
             </View>
           );
@@ -44,7 +44,7 @@ const Summary = ({ route }) => {
     );
 };
   
-
+// Styling
 const styles = StyleSheet.create({
   container: {
     flex: 1,

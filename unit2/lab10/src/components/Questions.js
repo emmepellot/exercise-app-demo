@@ -1,26 +1,27 @@
 import React, { useState } from 'react';
 import { View, Text, Button, StyleSheet } from 'react-native';
 
+// Creating question array
 const Question = ({ route, navigation }) => {
   const { questions } = route.params;
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [selectedAnswer, setSelectedAnswer] = useState(null); // State to store the selected answer
+  const [selectedAnswer, setSelectedAnswer] = useState(new Array(questions.length).fill(null)); // Initialize selectedAnswer as an array
 
+  // Answering questions logic
   const handleNextQuestion = () => {
     if (currentIndex < questions.length - 1) {
       setCurrentIndex(currentIndex + 1);
-      setSelectedAnswer(null); // Reset selected answer when moving to the next question
     } else {
-      navigation.navigate('Summary', { questions, selectedAnswer }); // Pass selectedAnswer to Summary component
+      navigation.navigate('Summary', { questions, selectedAnswer });
     }
   };
-
   const handleAnswerSelection = (selectedIndex) => {
-    const updatedAnswers = selectedAnswer ? [...selectedAnswer] : []; // Create a copy of the selectedAnswer array or initialize as an empty array if null
-    updatedAnswers[currentIndex] = selectedIndex; // Update the selected answer for the current question
-    setSelectedAnswer(updatedAnswers); // Set the updated array as the new selectedAnswer
-};
+    const updatedAnswers = [...selectedAnswer];
+    updatedAnswers[currentIndex] = selectedIndex; 
+    setSelectedAnswer(updatedAnswers); 
+  };
 
+  // Handles the visual logic
   return (
     <View style={styles.container}>
       <Text style={styles.prompt}>{questions[currentIndex]?.prompt}</Text>
@@ -29,7 +30,7 @@ const Question = ({ route, navigation }) => {
           key={index}
           title={choice}
           onPress={() => handleAnswerSelection(index)}
-          style={selectedAnswer === index ? styles.selectedButton : null}
+          style={selectedAnswer[currentIndex] === index ? styles.selectedButton : null}
         />
       ))}
       <Button
@@ -40,6 +41,7 @@ const Question = ({ route, navigation }) => {
   );
 };
 
+// Styling
 const styles = StyleSheet.create({
   container: {
     flex: 1,
