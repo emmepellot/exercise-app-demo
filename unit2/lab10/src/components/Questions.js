@@ -5,7 +5,7 @@ import { View, Text, Button, StyleSheet } from 'react-native';
 const Question = ({ route, navigation }) => {
   const { questions } = route.params;
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [selectedAnswer, setSelectedAnswer] = useState(new Array(questions.length).fill(null)); // Initialize selectedAnswer as an array
+  const [selectedAnswer, setSelectedAnswer] = useState(new Array(questions.length).fill(null));
 
   // Answering questions logic
   const handleNextQuestion = () => {
